@@ -202,8 +202,8 @@ def downloadOptimizedIndexesList(basePath, M, K, Q, source):
         os.mkdir(basePath + "/inds/")
 
     if source == "GitHub":
-        txturl = "https://raw.githubusercontent.com/imtoolkit/imtoolkit/master/docs/build/html/db/M=" + str(
-            M) + "/" + txtfilename
+        txturl = "https://raw.githubusercontent.com/ishikawalab/imtoolkit" \
+                 "/master/docs/build/html/db/M=" + str(M) + "/" + txtfilename
     else:
         txturl = "https://ishikawa.cc/imtoolkit/db/M=" + str(M) + "/" + txtfilename
 

@@ -28,6 +28,15 @@ If you use Anaconda, you can install WiPhy as follows.
     > git clone https://github.com/ishikawalab/wiphy/
     > conda develop ./wiphy
 
+The Anaconda version 4.6.0 or above may also allow the following installation commands.
+
+    > conda config --set pip_interop_enabled True
+    > # for typical users
+    > pip install wiphy
+    > # for developers
+    > git clone https://github.com/ishikawalab/wiphy
+    > pip install -e ./wiphy
+
 The above installation process requires NumPy, Pandas, SciPy, SymPy, Numba, and tqdm, all of which are popular Python packages.
 Additionally, it is strongly recommended to install [CuPy](https://cupy.chainer.org/) 5.40+. 
 WiPhy is heavily dependent on CuPy to achieve significantly fast Monte Carlo simulations.

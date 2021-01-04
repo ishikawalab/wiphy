@@ -18,6 +18,10 @@ class Test(unittest.TestCase):
         a = me.getXCorrespondingToY(xp.array([0, 1]), xp.array([0, 1]), 0.5)
         np.testing.assert_almost_equal(a, xp.array(0.5))
 
+    def test_getYCorrespondingToX(self):
+        a = me.getYCorrespondingToX(xp.array([0, 1]), xp.array([0, 1]), 0.5)
+        np.testing.assert_almost_equal(a, xp.array(0.5))
+
 
 if __name__ == '__main__':
     unittest.main()

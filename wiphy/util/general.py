@@ -3,9 +3,9 @@
 
 __all__ = ['getGrayIndixes', 'frodiff', 'getEuclideanDistances', 'getMinimumEuclideanDistance', 'getDFTMatrix',
            'getDFTMatrixNumpy', 'inv_dB', 'randn', 'randn_c', 'countErrorBits', 'getXORtoErrorBitsArray',
-           'getErrorBitsTable', 'getRandomHermitianMatrix', 'CayleyTransform', 'CayleyTransformInv', 'asnumpy',
+           'getErrorBitsTable', 'getRandomHermitianMatrix', 'convertIntToBinArray', 'CayleyTransform', 'CayleyTransformInv', 'asnumpy',
            'ascupy', 'frequencyToWavelength', 'kurtosis', 'testUnitaryCodes', 'isUnitary', 'toXpArray', 'dicToNumpy',
-           'dicToDF', 'saveCSV', 'parseValue', 'argToDic']
+           'dicToDF', 'DFToDicNumpy', 'saveCSV', 'parseValue', 'argToDic']
 
 import os
 import re
@@ -131,6 +131,10 @@ def getRandomHermitianMatrix(M):
     return ret
 
 
+def convertIntToBinArray(i, B):
+    return xp.array(list(xp.binary_repr(i).zfill(B))).astype(xp.int)
+
+
 # TODO: need to support cp
 def CayleyTransform(H):
     M = H.shape[0]
@@ -192,6 +196,12 @@ def isUnitary(codes):
         return frodiff(codes.T.conj() @ codes / Nc, np.eye(M)) < 1e-6
 
 
+def testAlmostEqualBER(bera, berb):
+    logbera = np.log10(asnumpy(bera))
+    logberb = np.log10(asnumpy(berb))
+    np.testing.assert_almost_equal(logbera, logberb, decimal=2)
+
+
 def toXpArray(arr):
     return xp.asarray(arr)
 
@@ -209,6 +219,12 @@ def dicToDF(dic):
             dic[key] = xp.asnumpy(dic[key])
     return pd.DataFrame(dic)
 
+
+def DFToDicNumpy(df):
+    dic = {}
+    for key in df.keys():
+        dic[key] = np.array(df[key])
+    return dic
 
 def saveCSV(filename, df):
     if not os.path.exists("results/"):

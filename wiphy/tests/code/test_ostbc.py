@@ -17,6 +17,7 @@ class Test(unittest.TestCase):
         for L in [2, 4, 8, 16]:
             self.assertEqual(isUnitary(generateOSTBCodes(4, "PSK", L, nsymbols=2)), True)
             self.assertEqual(isUnitary(generateOSTBCodes(4, "PSK", L, nsymbols=3)), True)
+            self.assertEqual(isUnitary(generateOSTBCodes(4, "PSK", L, nsymbols=4)), True)
 
     def test_M16(self):
         self.assertEqual(isUnitary(generateOSTBCodes(16, "PSK", 2)), True)

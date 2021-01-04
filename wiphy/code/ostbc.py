@@ -29,10 +29,10 @@ def generateOSTBCodes(M, modtype, L, nsymbols=1):
         if modtype == "PAM":
             nsymbols = M
         else:
-            if nsymbols != 2 and nsymbols != 3:
-                print("Please specify nsymbols = 2 or 3. I use nsymbols = 2.")
+            if nsymbols == 1:
+                print("Please specify nsymbols = 2, 3 or 4. I use nsymbols = 2.")
                 nsymbols = 2
-            if modtype == "QAM":
+            if modtype == "QAM" or nsymbols == 4:
                 print("Note that the space-time codewords become non-orthogonal.")
     elif M == 8:
         if modtype == "PAM":
@@ -100,6 +100,24 @@ def generateOSTBCodes(M, modtype, L, nsymbols=1):
                     codes[i, 3, 1] = np.conj(s[2])
                     codes[i, 3, 2] = -np.conj(s[1])
                     codes[i, 3, 3] = -s[0]
+                    codes[i] /= np.sqrt(nsymbols)
+                elif nsymbols == 4:
+                    codes[i, 0, 0] = s[0]
+                    codes[i, 0, 1] = -np.conj(s[1])
+                    codes[i, 1, 0] = s[1]
+                    codes[i, 1, 1] = np.conj(s[0])
+                    codes[i, 0, 2] = s[2]
+                    codes[i, 0, 3] = -np.conj(s[3])
+                    codes[i, 1, 2] = s[3]
+                    codes[i, 1, 3] = np.conj(s[2])
+                    codes[i, 2, 0] = s[2]
+                    codes[i, 2, 1] = -np.conj(s[3])
+                    codes[i, 3, 0] = s[3]
+                    codes[i, 3, 1] = np.conj(s[2])
+                    codes[i, 2, 2] = s[0]
+                    codes[i, 2, 3] = -np.conj(s[1])
+                    codes[i, 3, 2] = s[1]
+                    codes[i, 3, 3] = np.conj(s[0])
                     codes[i] /= np.sqrt(nsymbols)
 
         elif M == 8:

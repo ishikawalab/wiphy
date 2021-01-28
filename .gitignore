@@ -155,3 +155,5 @@ uploaddoc.rb
 uploadpypi.bat
 /.vs
 /.idea
+/build/*
+

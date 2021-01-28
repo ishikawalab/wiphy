@@ -3,12 +3,12 @@
 
 __all__ = ['modulator', 'ostbc', 'duc', 'im', 'adsm', 'anm', 'tast', 'basis', 'generateCodes']
 
+from . import modulator
 from . import adsm
 from . import anm
 from . import basis
 from . import duc
 from . import im
-from . import modulator
 from . import ostbc
 from . import tast
 

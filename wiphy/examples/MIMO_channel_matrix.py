@@ -1,5 +1,4 @@
 from numpy import *
-
 from wiphy.util.general import *
 
 # 2x2 MIMO

@@ -5,22 +5,19 @@ import unittest
 
 import numpy as np
 
-if os.getenv("USECUPY") == "1":
-    import cupy as xp
-else:
-    import numpy as xp
+import numpy as np
 import wiphy.util.plot as me
 
 
 class Test(unittest.TestCase):
 
     def test_getXCorrespondingToY(self):
-        a = me.getXCorrespondingToY(xp.array([0, 1]), xp.array([0, 1]), 0.5)
-        np.testing.assert_almost_equal(a, xp.array(0.5))
+        a = me.getXCorrespondingToY(np.array([0, 1]), np.array([0, 1]), 0.5)
+        np.testing.assert_almost_equal(a, np.array(0.5))
 
     def test_getYCorrespondingToX(self):
-        a = me.getYCorrespondingToX(xp.array([0, 1]), xp.array([0, 1]), 0.5)
-        np.testing.assert_almost_equal(a, xp.array(0.5))
+        a = me.getYCorrespondingToX(np.array([0, 1]), np.array([0, 1]), 0.5)
+        np.testing.assert_almost_equal(a, np.array(0.5))
 
 
 if __name__ == '__main__':

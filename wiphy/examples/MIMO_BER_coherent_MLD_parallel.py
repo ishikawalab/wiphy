@@ -1,18 +1,12 @@
 # Copyright (c) WiPhy Development Team
 # This library is released under the MIT License, see LICENSE.txt
 
-import os
 import sys
-
+from numpy import *
 from tqdm import trange
 from wiphy.channel.ideal import generateAWGNChannel, generateRayleighChannel
 from wiphy.code import generateCodes
-from wiphy.util.general import getXORtoErrorBitsArray, inv_dB, randn_c, argToDic, dicToNumpy, saveCSV
-
-if os.getenv("USECUPY") == "1":
-    from cupy import *
-else:
-    from numpy import *
+from wiphy.util.general import getXORtoErrorBitsArray, inv_dB, randn_c, argToDic, saveCSV
 
 
 def simulateBERParallel(codes, channelfun, params, printValue=True):
@@ -62,7 +56,7 @@ def simulateBERParallel(codes, channelfun, params, printValue=True):
                 print("At SNR = %1.2f dB, BER = %d / %d = %1.10e" % (snr_dBs[i], bers[i], nbits, bers[i] / nbits))
 
     bers /= ITo * ITi * B * Nc
-    return dicToNumpy({"snr_dB": snr_dBs, "ber": bers})
+    return {"snr_dB": snr_dBs, "ber": bers}
 
 
 if __name__ == '__main__':

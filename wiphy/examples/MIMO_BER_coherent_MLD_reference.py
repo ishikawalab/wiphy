@@ -1,14 +1,12 @@
 # Copyright (c) WiPhy Development Team
 # This library is released under the MIT License, see LICENSE.txt
-# USECUPY = 0 required
 
 import sys
 from numpy import *
 from tqdm import trange
-
 from wiphy.channel.ideal import generateRayleighChannel
 from wiphy.code import generateCodes
-from wiphy.util.general import getXORtoErrorBitsArray, inv_dB, randn_c, argToDic, dicToNumpy, saveCSV
+from wiphy.util.general import getXORtoErrorBitsArray, inv_dB, randn_c, argToDic, saveCSV, normsYHCodes
 
 
 def simulateBERReference(codes, channelfun, params, printValue=True):
@@ -38,10 +36,9 @@ def simulateBERReference(codes, channelfun, params, printValue=True):
             codei = random.randint(0, Nc)
             H = channelfun(N, M)  # N \times M
             V = randn_c(N, T) * sqrt(sigmav2s[i])  # N \times T
-            Y = matmul(H, codes[codei]) + V  # N \times T
+            Y = H @ codes[codei] + V  # N \times T
 
-            p = square(abs(Y - matmul(H, codes)))  # Nc \times N \times T
-            norms = sum(p, axis=(1, 2))  # summation over the (N,T) axes
+            norms = normsYHCodes(Y, H, codes)
             mini = argmin(norms)
             errorBits += sum(xor2ebits[codei ^ mini])
 
@@ -49,7 +46,7 @@ def simulateBERReference(codes, channelfun, params, printValue=True):
         if printValue:
             print("At SNR = %1.2f dB, BER = %d / %d = %1.10e" % (snr_dBs[i], errorBits, IT * B, bers[i]))
 
-    return dicToNumpy({"snr_dB": snr_dBs, "ber": bers})
+    return {"snr_dB": snr_dBs, "ber": bers}
 
 
 if __name__ == '__main__':

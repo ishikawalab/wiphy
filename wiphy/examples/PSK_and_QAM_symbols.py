@@ -1,5 +1,4 @@
 from numpy import *
-
 from wiphy.code.modulator import *
 from wiphy.util.general import *
 

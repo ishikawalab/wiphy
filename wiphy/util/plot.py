@@ -8,7 +8,7 @@ from scipy.interpolate import interp1d
 from matplotlib.patches import ConnectionPatch
 
 __all__ = ['rcParamsAcademic', 'getXCorrespondingToY', 'getYCorrespondingToX',
-           'trimber', 'plotber', 'addArrow', 'bib']
+           'trimber', 'plotber', 'addText', 'addArrow', 'bib']
 
 
 def rcParamsAcademic(plt):
@@ -75,6 +75,10 @@ def plotber(ax, d, **kwargs):
     if "label" in kwargs:
        ax.plot([], [], color=kwargs["color"], marker=kwargs["marker"], ms = ms,
                    linestyle=kwargs["linestyle"], label=kwargs["label"])
+
+
+def addText(ax, cx, cy, text, color="k", ha = "left", va = "center"):
+    ax.annotate(text, xy=(cx, cy), ha=ha, va=va, color=color)
 
 
 def addArrow(ax, cx, xdiff, cy, ydiff, text, color="k", ha = "left", va = "center",

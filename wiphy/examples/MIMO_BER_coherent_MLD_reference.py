@@ -2,6 +2,7 @@
 # This library is released under the MIT License, see LICENSE.txt
 # USECUPY = 0 required
 
+import sys
 from numpy import *
 from tqdm import trange
 
@@ -52,8 +53,13 @@ def simulateBERReference(codes, channelfun, params, printValue=True):
 
 
 if __name__ == '__main__':
-    args = ["BER_sim=coh_channel=rayleigh_code=blast_M=4_T=1_L=2_mod=PSK_N=4_IT=1e4_from=0.00_to=20.00_len=11",
-            "BER_sim=coh_channel=rayleigh_code=index_dm=dic_M=4_T=1_K=1_Q=4_L=4_mod=PSK_N=4_IT=1e4_from=0.00_to=20.00_len=11"]
+    if len(sys.argv) > 1:
+        args = sys.argv[1:]
+    else:
+        args = [
+            "BER_sim=coh_channel=rayleigh_code=blast_M=4_T=1_L=2_mod=PSK_N=4_IT=1e4_from=0.00_to=20.00_len=11",
+            "BER_sim=coh_channel=rayleigh_code=index_dm=dic_M=4_T=1_K=1_Q=4_L=4_mod=PSK_N=4_IT=1e4_from=0.00_to=20.00_len=11"
+        ]
 
     for arg in args:
         print("Simulating arg = " + arg)
@@ -61,3 +67,4 @@ if __name__ == '__main__':
         codes = generateCodes(params)
         ret = simulateBERReference(codes, generateRayleighChannel, params, printValue=False)
         saveCSV(arg, ret)
+        print(ret)

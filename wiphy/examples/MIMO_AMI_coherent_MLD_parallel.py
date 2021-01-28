@@ -1,18 +1,12 @@
 # Copyright (c) WiPhy Development Team
 # This library is released under the MIT License, see LICENSE.txt
 
-import os
 import sys
-
+from numpy import *
 from tqdm import trange
 from wiphy.channel.ideal import generateRayleighChannel
 from wiphy.code import generateCodes
-from wiphy.util.general import inv_dB, randn_c, argToDic, dicToNumpy, saveCSV
-
-if os.getenv("USECUPY") == "1":
-    from cupy import *
-else:
-    from numpy import *
+from wiphy.util.general import inv_dB, randn_c, argToDic, saveCSV
 
 
 def simulateAMIParallel(codes, channelfun, params, printValue=True):
@@ -62,7 +56,7 @@ def simulateAMIParallel(codes, channelfun, params, printValue=True):
 
     #
     amis /= ITo
-    return dicToNumpy({"snr_dB": snr_dBs, "ami": amis})
+    return {"snr_dB": snr_dBs, "ami": amis}
 
 
 if __name__ == '__main__':

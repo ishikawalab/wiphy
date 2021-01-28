@@ -6,7 +6,7 @@ __all__ = ['lorenz', 'RungeKutta', 'odeintRungeKutta', 'logisticMap', 'logisticM
            'getSecondChebyshevPolynomialSequence']
 
 import numpy as np
-from numba import jit
+from numba import njit
 
 
 def lorenz(p, t, rho=28.0, sigma=10.0, beta=8.0 / 3.0):
@@ -21,7 +21,7 @@ def RungeKutta(f, p, t, h):
     return p + h / 6.0 * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
 
 
-@jit
+@njit
 def odeintRungeKutta(f, initialp, ts):
     ret = np.zeros((len(ts), 3))
     ret[0, :] = initialp
@@ -30,7 +30,7 @@ def odeintRungeKutta(f, initialp, ts):
     return ret
 
 
-@jit
+@njit
 def logisticMap(xn, a=4.0):
     return a * xn * (1.0 - xn)
 
@@ -40,7 +40,7 @@ def logisticMapClosedForm(x0, i):
     return np.square(np.sin(np.exp2(i) * np.arcsin(np.sqrt(x0))))
 
 
-@jit
+@njit
 def getLogisticMapSequence(x0, size):
     ret = np.zeros(size)
     ret[0] = x0
@@ -53,7 +53,7 @@ def getLogisticMapSequence(x0, size):
 
 
 # x0 \in [0,1]
-@jit
+@njit
 def getLogisticMapSequenceOriginal(x0, size):
     ret = np.zeros(size)
     ret[0] = x0
@@ -63,14 +63,14 @@ def getLogisticMapSequenceOriginal(x0, size):
 
 
 # x0 \in [0,1]
-@jit
+@njit
 def getUniformLogisticMapSequenceOriginal(x0, size):
     ret = getLogisticMapSequenceOriginal(x0, size)
     return 2.0 * np.arcsin(np.sqrt(ret)) / np.pi
 
 
 # x0 \in [-1,1]
-@jit
+@njit
 def getSecondChebyshevPolynomialSequence(x0, size):
     ret = np.zeros(size)
     ret[0] = x0

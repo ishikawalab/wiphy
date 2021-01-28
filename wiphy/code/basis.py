@@ -5,7 +5,7 @@ __all__ = ['generateBases', 'convertUnitaryToBases', 'constructUnitaryFromE1', '
 
 import numpy as np
 
-from ..util.general import getDFTMatrixNumpy, CayleyTransform, getRandomHermitianMatrix
+from ..util.general import getDFTMatrix, CayleyTransform, getRandomHermitianMatrix
 
 
 def generateBases(type, M, T, **kwargs):
@@ -29,14 +29,14 @@ def generateBases(type, M, T, **kwargs):
         U = np.eye(M, dtype=np.complex)
     elif type[0].lower() == 'd':
         # DFT basis
-        U = getDFTMatrixNumpy(M)
+        U = getDFTMatrix(M)
     elif type[0].lower() == 'r':
         # Random basis
         U = CayleyTransform(getRandomHermitianMatrix(M))
     elif type[0].lower() == 'h':
         # Hybrid basis
         P = int(type.replace('h', ''))
-        W = getDFTMatrixNumpy(P)
+        W = getDFTMatrix(P)
         U = np.zeros((M, M), dtype=complex)
         for i in range(int(M / P)):
             U[(i * P): (i * P + P), (i * P): (i * P + P)] = W
@@ -59,7 +59,7 @@ def constructUnitaryFromE1(E1):
     U = np.zeros((M, M), dtype=np.complex)
     U[:, 0: T] = E1
 
-    W = getDFTMatrixNumpy(M)
+    W = getDFTMatrix(M)
     for k in range(1, int(M / T)):
         v = W[:, (k * T): ((k + 1) * T)]
         msum = np.eye(M, dtype=np.complex)

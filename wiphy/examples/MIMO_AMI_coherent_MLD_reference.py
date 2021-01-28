@@ -1,14 +1,11 @@
 # Copyright (c) WiPhy Development Team
 # This library is released under the MIT License, see LICENSE.txt
-# USECUPY = 0 required
 
-import sys
 from numpy import *
 from tqdm import trange
-
 from wiphy.channel.ideal import generateRayleighChannel
 from wiphy.code import generateCodes
-from wiphy.util.general import inv_dB, randn_c, argToDic, dicToNumpy, saveCSV
+from wiphy.util.general import inv_dB, randn_c, argToDic, saveCSV
 
 
 def simulateAMIReference(codes, channelfun, params, printValue=True):
@@ -49,7 +46,7 @@ def simulateAMIReference(codes, channelfun, params, printValue=True):
         if printValue:
             print("At SNR = %1.2f dB, AMI = %1.10f" % (snr_dBs[i], amis[i]))
 
-    return dicToNumpy({"snr_dB": snr_dBs, "ami": amis})
+    return {"snr_dB": snr_dBs, "ami": amis}
 
 
 if __name__ == '__main__':

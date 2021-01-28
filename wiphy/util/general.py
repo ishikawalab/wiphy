@@ -1,8 +1,8 @@
 # Copyright (c) WiPhy Development Team
 # This library is released under the MIT License, see LICENSE.txt
 
-__all__ = ['getGrayIndixes', 'frodiff', 'getEuclideanDistances', 'getMinimumEuclideanDistance', 'getDFTMatrix',
-           'getDFTMatrixNumpy', 'inv_dB', 'randn', 'randn_c', 'countErrorBits', 'getXORtoErrorBitsArray',
+__all__ = ['getGrayIndixes', 'frodiff', 'normsYHCodes', 'getEuclideanDistances', 'getMinimumEuclideanDistance', 'getDFTMatrix',
+           'inv_dB', 'randn', 'randn_c', 'countErrorBits', 'getXORtoErrorBitsArray',
            'getErrorBitsTable', 'getRandomHermitianMatrix', 'convertIntToBinArray', 'CayleyTransform', 'CayleyTransformInv', 'asnumpy',
            'ascupy', 'frequencyToWavelength', 'kurtosis', 'testUnitaryCodes', 'isUnitary', 'toXpArray', 'dicToNumpy',
            'dicToDF', 'DFToDicNumpy', 'saveCSV', 'parseValue', 'argToDic']
@@ -12,26 +12,44 @@ import re
 
 import numpy as np
 import pandas as pd
-from numba import jit
+from numba import njit
 from scipy.constants import speed_of_light
-from sympy.combinatorics.graycode import GrayCode
-
-if os.getenv("USECUPY") == "1":
-    import cupy as xp
-else:
-    import numpy as xp
 
 
+@njit
 def getGrayIndixes(bitWidth):
-    gray = GrayCode(bitWidth)
-    return [int(strb, 2) for strb in gray.generate_gray()]
+    return [i ^ (i >> 1) for i in range(2 ** bitWidth)]
 
 
+@njit
 def frodiff(x, y):
-    return xp.square(xp.linalg.norm(x - y))
+    return np.square(np.linalg.norm(x - y))
 
 
-@jit(parallel=True)
+# Y in (N, T), H in (N, M), and codes in (Nc, M, T)
+# numba doesn't support Y - H @ codes calculation
+@njit# (parallel=True) worsens performance
+def normsYHCodes(Y, H, codes):
+    Nc = codes.shape[0]
+    norms = np.zeros(Nc)
+    for x in range(Nc):
+        norms[x] = np.square(np.linalg.norm(Y - H @ codes[x]))
+
+    return norms
+
+
+# numba doesn't support broadcasting
+@njit
+def matmulb(H, codes):
+    Nc = codes.shape[0]
+    ret = np.zeros((Nc, H.shape[0], codes.shape[2])) + 0.j
+    for x in range(Nc):
+        ret[x] = H @ codes[x]
+
+    return ret
+
+
+@njit# (parallel=True) worsens performance
 def getEuclideanDistances(codes):
     # The following straightforward implementation with numba is the fastest
     Nc, M, T = codes.shape[0], codes.shape[1], codes.shape[2]
@@ -48,7 +66,7 @@ def getEuclideanDistances(codes):
     return ret
 
 
-@jit(parallel=True)
+@njit# (parallel=True) worsens performance
 def getMinimumEuclideanDistance(codes):
     # The following straightforward implementation with numba is the fastest
     Nc, M, T = codes.shape[0], codes.shape[1], codes.shape[2]
@@ -64,18 +82,9 @@ def getMinimumEuclideanDistance(codes):
     return mind
 
 
+@njit
 def getDFTMatrix(N):
-    W = xp.zeros((N, N), dtype=complex)
-    omega = xp.exp(2.0j * xp.pi / N)
-    for j in range(N):
-        for k in range(N):
-            W[j, k] = pow(omega, j * k)
-    W /= xp.sqrt(N)
-    return W
-
-
-def getDFTMatrixNumpy(N):
-    W = np.zeros((N, N), dtype=complex)
+    W = np.zeros((N, N)) + 0.j
     omega = np.exp(2.0j * np.pi / N)
     for j in range(N):
         for k in range(N):
@@ -84,97 +93,115 @@ def getDFTMatrixNumpy(N):
     return W
 
 
+@njit
 def inv_dB(dB):
     return 10.0 ** (dB / 10.0)
 
 
+@njit
 def randn(*size):
-    return xp.random.normal(0, 1, size=size)
+    return np.random.normal(0, 1, size=size)
 
 
+@njit
 def randn_c(*size):
     """
     Generate an ndarray that follows the complex normal distribution.
     """
-    return xp.random.normal(0, 1 / xp.sqrt(2.0), size=size) + xp.random.normal(0, 1 / xp.sqrt(2.0), size=size) * 1j
+    return np.random.normal(0, 1 / np.sqrt(2.0), size=size) + np.random.normal(0, 1 / np.sqrt(2.0), size=size) * 1j
 
 
+@njit
 def countErrorBits(x, y):
-    return bin(x ^ y).count('1')
+    # return np.binary_repr(x ^ y).count('1') # not supported by numba
+    ret = 0
+    z = (x ^ y) * 2
 
-
-def getXORtoErrorBitsArray(Nc):
-    # return xp.array(list(map(lambda x: bin(x).count('1'), range(Nc + 1))))
-    ret = xp.zeros(Nc + 1)
-    for x in range(Nc + 1):
-        ret[x] = bin(x).count('1')
+    while z >= 1:
+        z //= 2
+        if z % 2 == 1:
+            ret += 1
 
     return ret
 
 
+@njit
+def getXORtoErrorBitsArray(Nc):
+    # return xp.array(list(map(lambda x: bin(x).count('1'), range(Nc + 1))))
+    ret = np.zeros(Nc + 1)
+    for x in range(Nc + 1):
+        ret[x] = countErrorBits(0, x)
+
+    return ret
+
+
+@njit
 def getErrorBitsTable(Nc):
-    errorArray = getXORtoErrorBitsArray(Nc)
-    errorTable = xp.zeros((Nc, Nc), dtype=xp.int8)
+    errorTable = np.zeros((Nc, Nc), dtype=np.int8)
     for y in range(Nc):
         for x in range(y, Nc):
-            errorTable[y][x] = errorTable[x][y] = errorArray[x ^ y]
+            errorTable[y][x] = errorTable[x][y] = countErrorBits(x, y)
 
     return errorTable
 
 
+@njit
 def getRandomHermitianMatrix(M):
-    ret = xp.diag(0j + randn(M))
+    ret = np.diag(0j + randn(M))
     for y in range(0, M - 1):
         for x in range(y + 1, M):
             ret[y, x] = randn_c()
-            ret[x, y] = xp.conj(ret[y, x])
+            ret[x, y] = np.conj(ret[y, x])
     return ret
 
 
+@njit
 def convertIntToBinArray(i, B):
-    return xp.array(list(xp.binary_repr(i).zfill(B))).astype(xp.int)
+    return np.array(list(np.binary_repr(i).zfill(B))).astype(np.int)
 
 
-# TODO: need to support cp
+@njit
 def CayleyTransform(H):
     M = H.shape[0]
-    I = np.eye(M, dtype=np.complex)
-    U = np.matmul(I - 1.j * H, np.linalg.inv(I + 1.j * H))
+    I = np.eye(M) + 0.j
+    U = (I - 1.j * H) @ np.linalg.inv(I + 1.j * H)
     # U = np.matmul(H - 1.j * I, np.linalg.inv(H + 1.j * I))
     return U
 
 
-# TODO: need to support cp
+@njit
 def CayleyTransformInv(U):
     M = U.shape[0]
-    I = np.eye(M, dtype=np.complex)
+    I = np.eye(M) + 0.j
     # H = 1.j * np.matmul(I + U,np.linalg.inv(I - U))
-    H = -1.j * np.matmul(np.linalg.inv(I + U), I - U)
+    H = -1.j * np.linalg.inv(I + U) @ (I - U)
     return H
 
 
 def asnumpy(xparr):
     if 'cupy' in str(type(xparr)):
-        return xp.asnumpy(xparr)  # cupy to numpy
+        return np.asnumpy(xparr)  # cupy to numpy
     return xparr  # do nothing
 
 
 def ascupy(nparr):
     if 'numpy' in str(type(nparr)):
-        return xp.asarray(nparr)  # numpy to cupy
+        return np.asarray(nparr)  # numpy to cupy
     return nparr  # do nothing
 
 
 # frequency [Hz], wavelength [m]
-@jit
+# I just wouldn't like to import speed_of_light in my script
+@njit
 def frequencyToWavelength(frequency):
     return speed_of_light / frequency
 
 
+@njit
 def kurtosis(x):
-    mu = xp.mean(x)
-    mu2 = xp.mean(xp.power(x - mu, 2))
-    mu4 = xp.mean(xp.power(x - mu, 4))
+    mu = np.mean(x)
+    mu2 = np.mean(np.power(x - mu, 2))
+    mu4 = np.mean(np.power(x - mu, 4))
     beta2 = mu4 / (mu2 * mu2) - 3.0
     return beta2
 
@@ -202,21 +229,22 @@ def testAlmostEqualBER(bera, berb):
     np.testing.assert_almost_equal(logbera, logberb, decimal=2)
 
 
+# depricated
 def toXpArray(arr):
-    return xp.asarray(arr)
+    return np.asarray(arr)
 
 
 def dicToNumpy(dic):
     for key in dic.keys():
         if 'cupy' in str(type(dic[key])):
-            dic[key] = xp.asnumpy(dic[key])
+            dic[key] = np.asnumpy(dic[key])
     return dic
 
 
 def dicToDF(dic):
     for key in dic.keys():
         if 'cupy' in str(type(dic[key])):
-            dic[key] = xp.asnumpy(dic[key])
+            dic[key] = np.asnumpy(dic[key])
     return pd.DataFrame(dic)
 
 
@@ -225,6 +253,7 @@ def DFToDicNumpy(df):
     for key in df.keys():
         dic[key] = np.array(df[key])
     return dic
+
 
 def saveCSV(filename, df):
     if not os.path.exists("results/"):

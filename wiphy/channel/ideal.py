@@ -9,10 +9,7 @@ import os
 
 from ..util.general import randn_c
 
-if os.getenv("USECUPY") == "1":
-    import cupy as xp
-else:
-    import numpy as xp
+import numpy as np
 
 
 def generateAWGNChannel(N, M, IT=1):
@@ -26,7 +23,7 @@ def generateAWGNChannel(N, M, IT=1):
     Returns:
         ndarray: a (IT*M)xM vertical identical matrix.
     """
-    return xp.tile(xp.eye(M), IT).T
+    return np.tile(np.eye(M), IT).T
 
 
 def generateRayleighChannel(N, M, IT=1):
@@ -55,29 +52,29 @@ def generateRayleighOFDMChannel(M, IT=1):
     Returns:
         ndarray: a (IT*M)xM channel matrix.
     """
-    return (xp.tile(xp.eye(M), IT) * randn_c(IT * M)).T
+    return (np.tile(np.eye(M), IT) * randn_c(IT * M)).T
 
 
 def getPositionsUniformLinearArray(Nae, ae_spacing, height):
-    x = xp.arange(Nae) * ae_spacing
-    x -= xp.mean(x)  # centering
-    y = xp.zeros(Nae)
-    z = xp.repeat(xp.array(height), Nae)
+    x = np.arange(Nae) * ae_spacing
+    x -= np.mean(x)  # centering
+    y = np.zeros(Nae)
+    z = np.repeat(np.array(height), Nae)
 
     return x, y, z
 
 
 def getPositionsRectangular2d(Nae, ae_spacing, height):
-    sq = xp.floor(xp.sqrt(Nae))
-    x = xp.arange(Nae) % sq
-    y = xp.floor(xp.arange(Nae) / sq)
-    z = xp.repeat(xp.array(height), Nae)
+    sq = np.floor(np.sqrt(Nae))
+    x = np.arange(Nae) % sq
+    y = np.floor(np.arange(Nae) / sq)
+    z = np.repeat(np.array(height), Nae)
 
     x *= ae_spacing
     y *= ae_spacing
 
-    x -= xp.mean(x)
-    y -= xp.mean(y)
+    x -= np.mean(x)
+    y -= np.mean(y)
 
     return x, y, z
 
@@ -98,13 +95,13 @@ def generateRicianLoSChannel(tx, ty, tz, rx, ry, rz, wavelength, IT=1):
     M = len(tx)  # the number of transmit antenna elements
     N = len(rx)  # the number of receive antenna elements
 
-    r = xp.zeros((N, M), dtype=xp.complex)
+    r = np.zeros((N, M), dtype=np.complex)
     for n in range(N):
         for m in range(M):
-            r[n][m] = xp.sqrt(xp.square(rx[n] - tx[m]) + xp.square(ry[n] - ty[m]) + xp.square(rz[n] - tz[m]))
+            r[n][m] = np.sqrt(np.square(rx[n] - tx[m]) + np.square(ry[n] - ty[m]) + np.square(rz[n] - tz[m]))
 
-    anHLoS = xp.exp(-1j * 2.0 * xp.pi / wavelength * r)
-    return xp.tile(anHLoS.T, IT).T  # IT \cdot N \times M
+    anHLoS = np.exp(-1j * 2.0 * np.pi / wavelength * r)
+    return np.tile(anHLoS.T, IT).T  # IT \cdot N \times M
 
 
 def generateRicianChannel(HLoS, N, M, K_dB, IT=1):
@@ -122,4 +119,4 @@ def generateRicianChannel(HLoS, N, M, K_dB, IT=1):
         ndarray: a (IT*N)xM Rayleigh channel matrix.
     """
     K = 10 ** (K_dB / 10.0)
-    return xp.sqrt(K / (1.0 + K)) * HLoS + randn_c(IT * N, M) / xp.sqrt(1.0 + K)
+    return np.sqrt(K / (1.0 + K)) * HLoS + randn_c(IT * N, M) / np.sqrt(1.0 + K)

@@ -12,31 +12,15 @@ The major advantages of this package are highlighted as follows:
 - Some methods are not well documented.  
 
 ## Installation Guide
-WiPhy is available from the Python official package repository [PyPi](https://pypi.org/project/imtoolkit/).
+WiPhy can be installed as follows.
 
-    > pip install wiphy
-
-The WiPhy development team welcomes other researchers' contributions and pull requests.
-In that case, it would be better to install the latest package and activate the editable mode as follows:
-
-    > git clone https://github.com/ishikawalab/wiphy/
-    > pip install -e ./wiphy # this activates the editable mode
-
-If you use Anaconda, you can install WiPhy as follows.
-
+    > conda install git # if you do not have git
     > git clone https://github.com/ishikawalab/wiphy/
     > conda develop ./wiphy
 
-The Anaconda version 4.6.0 or above may also allow the following installation commands.
-
-    > conda config --set pip_interop_enabled True
-    > # for typical users
-    > pip install wiphy
-    > # for developers
-    > git clone https://github.com/ishikawalab/wiphy
-    > pip install -e ./wiphy
-
 The above installation process requires NumPy, Pandas, SciPy, SymPy, Numba, and tqdm, all of which are popular Python packages.
+The WiPhy development team welcomes other researchers' contributions and pull requests.
+
 
 ## Citations
 

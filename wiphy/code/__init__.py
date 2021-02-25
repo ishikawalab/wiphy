@@ -41,7 +41,7 @@ def generateCodes(params):
     elif scode == "duc":
         return duc.generateDUCCodes(params["M"], params["L"])
     elif scode == "adsm":
-        if params.isSpeficied("u1"):
+        if "u1" in params:
             return adsm.generateADSMCodes(params["M"], params["mod"], params["L"], params["u1"])
         else:
             return adsm.generateADSMCodes(params["M"], params["mod"], params["L"])

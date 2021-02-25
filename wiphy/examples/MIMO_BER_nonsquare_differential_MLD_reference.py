@@ -9,7 +9,7 @@ from wiphy.code.basis import generateBases
 from wiphy.util.general import inv_dB, randn_c, argToDic, saveCSV, normsYHCodes, getErrorBitsTable
 
 
-def simulateBERReference(codes, bases, IT, M, N, T, W, snr_dBs, printValue=True):
+def simulateBERReference(codes, bases, alpha, IT, M, N, T, W, snr_dBs, printValue=True):
     """
     Simulates BER values at multiple SNRs, where the straightforward reference algorithm is used. Note that this time complexity is unrealistically high. This simulation relies on the nonsquare differential space-time block codes, which are proposed in [1-3]. This implementation uses the square-to-nonsquare projection concept of [2] and the adaptive forgetting factor of [3] for time-varying channels. The environment variable USECUPY determines whether to use cupy or not.
 
@@ -66,13 +66,17 @@ def simulateBERReference(codes, bases, IT, M, N, T, W, snr_dBs, printValue=True)
                     mini = argmin(norms)
                     Xhat1 = codes[mini]
 
-                    # adaptive forgetting factor
                     Yhd = Yhat0 @ Xhat1
                     D1 = Y1 - Yhd @ E1
-                    n1 = square(linalg.norm(D1))
-                    estimatedAlpha = N * T * sigmav2s[i] / n1
-                    estimatedAlpha = min(max(estimatedAlpha, 0.01), 0.99)
-                    Yhat1 = (1.0 - estimatedAlpha) * D1 @ E1H + Yhd
+                    Yhat1 = (1.0 - alpha) * D1 @ E1H + Yhd
+
+                    # # adaptive forgetting factor for time-varying channels
+                    # Yhd = Yhat0 @ Xhat1
+                    # D1 = Y1 - Yhd @ E1
+                    # n1 = square(linalg.norm(D1))
+                    # estimatedAlpha = N * T * sigmav2s[i] / n1
+                    # estimatedAlpha = min(max(estimatedAlpha, 0.01), 0.99)
+                    # Yhat1 = (1.0 - estimatedAlpha) * D1 @ E1H + Yhd
 
                     errorBits += xor2ebits[codei][mini]
 
@@ -93,8 +97,11 @@ if __name__ == '__main__':
         args = sys.argv[1:]
     else:
         args = [
-            # the N-DUC scheme using the dense basis, where we have (M, N, R) = (4, 4, 4.0).
-            "BER_sim=nsdiff_channel=rayleigh_code=DUC_basis=d_M=4_N=4_T=1_L=16_W=80_IT=1e3_from=0.00_to=30.00_len=16"
+            # (M, N, R) = (4, 4, 4.0)
+            ## the N-DUC scheme using the dense basis
+            "BER_sim=nsdiff_channel=rayleigh_code=DUC_basis=d_alpha=0.810_M=4_N=4_T=1_L=16_W=80_IT=1e3_from=0.00_to=30.00_len=16",
+            ## the N-ADSM scheme using the sparse basis
+            "BER_sim=nsdiff_channel=rayleigh_code=ADSM_basis=i_alpha=0.797_M=4_N=4_T=1_L=4_mod=PSK_W=80_IT=1e3_from=0.00_to=30.00_len=16"
         ]
 
     for arg in args:
@@ -103,6 +110,6 @@ if __name__ == '__main__':
         codes = generateCodes(params)
         bases = generateBases(params["basis"], params["M"], params["T"])
         snr_dBs = linspace(params["from"], params["to"], params["len"])
-        ret = simulateBERReference(codes, bases, params["IT"], params["M"], params["N"], params["T"], params["W"], snr_dBs, printValue=False)
+        ret = simulateBERReference(codes, bases, params["alpha"], params["IT"], params["M"], params["N"], params["T"], params["W"], snr_dBs, printValue=False)
         saveCSV(arg, ret)
         print(ret)

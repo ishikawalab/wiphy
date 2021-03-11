@@ -31,6 +31,27 @@ class IMUtilTest(unittest.TestCase):
         self.assertEqual(imu.getIndexes("mes", 4, 2, 4), [[2, 3], [1, 3], [1, 2], [0, 3]])
         self.assertEqual(imu.getIndexes("wen", 4, 2, 4), [[0, 1], [1, 2], [2, 3], [0, 3]])
 
+    def test_getGoodDecsTableSmallMemory(self):
+        self.assertEqual(imu.getGoodDecsTableSmallMemory(4, 2), {4: [3, 12]})
+        self.assertEqual(imu.getGoodDecsTableSmallMemory(8, 4), {4: [15, 51, 195, 85, 165, 153, 105, 150, 102, 90, 170, 60, 204, 240], 6: [15, 113], 8: [15, 240]})
+
+    def test_writeDecTable_readDecTable(self):
+        imu.writeDecTable(4, 2)
+        decTable = imu.readDecTable(4, 2)
+        self.assertEqual(decTable, {4: [3, 12]})
+        imu.writeDecTable(8, 4)
+        decTable = imu.readDecTable(8, 4)
+        self.assertEqual(decTable, {4: [15, 51, 195, 85, 165, 153, 105, 150, 102, 90, 170, 60, 204, 240], 6: [15, 113], 8: [15, 240]})
+
+    def test_getAllIndsBasedOnDecFile(self):
+        self.assertEqual(imu.getAllIndsBasedOnDecFile(4, 2, 2), [[0, 1], [2, 3]])
+        self.assertEqual(imu.getAllIndsBasedOnDecFile(4, 2, 4), [])
+        self.assertEqual(imu.getAllIndsBasedOnDecFile(8, 4, 8), [[0, 1, 2, 3], [0, 1, 4, 5], [0, 1, 6, 7], [0, 2, 4, 6], [0, 2, 5, 7], [0, 3, 4, 7], [0, 3, 5, 6], [1, 2, 4, 7], [1, 2, 5, 6], [1, 3, 4, 6], [1, 3, 5, 7], [2, 3, 4, 5], [2, 3, 6, 7], [4, 5, 6, 7]])
+
+    def test_getGoodIndsBasedOnDecFile(self):
+        np.testing.assert_array_equal(imu.getGoodIndsBasedOnDecFile(4, 2, 4), [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]])
+        np.testing.assert_array_equal(imu.getGoodIndsBasedOnDecFile(8, 4, 2), [[0, 1, 2, 3], [4, 5, 6, 7]])
+
     def test_getProbabilityOfActivation(self):
         ret = imu.getProbabilityOfActivation([[0], [1], [2], [3]], 4)
         np.testing.assert_array_almost_equal(ret, np.ones(4) / 4)

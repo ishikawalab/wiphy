@@ -4,7 +4,8 @@
 __all__ = ['convertIndsToVector', 'convertIndsToMatrix', 'convertIndsToIndsDec', 'convertIndsDecToInds',
            'outputIndsToFile', 'getMaxQ', 'getDictionaryIndexesList', 'getMeslehIndexesList',
            'wen2016EquiprobableSubcarrierActivation', 'getRandomIndexesList', 'downloadOptimizedIndexesList',
-           'getOptimizedIndexesList', 'getIndexes', 'getProbabilityOfActivation', 'getHammingDistance',
+           'getOptimizedIndexesList', 'getIndexes', 'getGoodDecsTableSmallMemory', 'writeDecTable', 'readDecTable',
+           'getAllIndsBasedOnDecFile', 'getGoodIndsBasedOnDecFile', 'getProbabilityOfActivation', 'getHammingDistance',
            'getMinimumHammingDistance', 'getSumHamming', 'getSumDistanceBetweenActivatedElements', 'getInequalityL1',
            'checkConflict', 'getIMParameters']
 
@@ -293,6 +294,141 @@ def getIndexes(type, M, K, Q):
 
     return inds
 
+#
+# Construction of a submatrix of the combinatorial matrix that maximizes the minimum Hamming distance
+#
+def getGoodDecsTableSmallMemory(M, K):
+    minHT = 4
+    indsiter = itertools.combinations(range(M), K)
+    firstivec = np.zeros(M, dtype=np.int)
+    firstind = np.array(next(indsiter))
+    firstivec[firstind] = 1
+    # print(firstivec)
+    firstdec = np.sum(np.power(2, firstind))
+
+    # Extracts the active indices having minHT >= 4
+    indsvec = [firstivec]
+    indsdec = [firstdec]
+    for ind in indsiter:
+        ivec = np.zeros(M, dtype=np.int)
+        npind = np.array(ind)
+        ivec[npind] = 1
+        hd = getHammingDistance(firstivec, ivec)
+        if hd < minHT:
+            continue
+        indsvec.append(ivec)
+        indsdec.append(np.sum(np.power(2, npind)))
+
+    indsvec = np.array(indsvec)
+    # print(np.take(indsvec, np.array([0, 1]), axis=0))
+    # print(len(indsvec))
+    # print(len(indsdec))
+
+    MCK = len(indsvec)
+    newdecs = {}
+    while True:
+        print("minHT = %d" % (minHT))
+        newdecs[minHT] = indsdec
+        # print(newdecs)
+
+        lennd = len(newdecs[minHT])
+        lstart = 0
+        if minHT == 4:
+            lstart = 1
+        deletepos = []
+
+        ys = np.array(list(range(lstart, lennd)))
+        # print(ys)
+        # for y in range(lstart, lennd):
+        yi = 0
+        y = ys[yi]
+        while True:
+            # if y in deletepos:
+            #    continue
+
+            xs = np.array(list(range(y + 1, lennd)))
+            # print(xs)
+            # print(deletepos)
+            xs = np.setdiff1d(xs, deletepos)
+            if len(xs) > 0:
+                # print(indsvec[xs])
+                vxs = np.take(indsvec, xs, axis=0)
+                # print(vxs.shape)
+                # print(vxs)
+                vys = np.tile(indsvec[y], len(xs)).reshape(-1, M)
+                # print(vys)
+                hds = np.sum(np.logical_xor(vxs, vys), axis=1)
+                # hds = np.apply_along_axis(lambda x: getHammingDistance(indsvec[y], indsvec[x[0]]), 0, xs.reshape(1, len(xs)))
+                # print(hds)
+                # print(list(np.where(hds < minHT)[0]))
+                newdel = list(xs[np.where(hds < minHT)[0]])
+                deletepos.extend(newdel)
+                ys = np.setdiff1d(ys, newdel)
+            # print(ys)
+            # for x in range(y + 1, lennd):
+            #    if x in deletepos:
+            #        continue
+            #    hd = np.sum(np.logical_xor(indsvec[y], indsvec[x]))
+            #    if hd < minHT:
+            #        deletepos.append(x)
+            print("%.2f percent" % (100.0 * y / lennd))
+            yi += 1
+            if yi >= len(ys):
+                break
+            y = ys[yi]
+
+        # print(deletepos)
+        newdecs[minHT] = list(np.delete(newdecs[minHT], deletepos, axis=0))
+        if len(newdecs[minHT]) <= 1:
+            del newdecs[minHT]
+            break
+
+        if len(newdecs[minHT]) == 0:
+            break
+        minHT += 2
+
+    return newdecs
+
+
+def writeDecTable(M, K):
+    basePath = os.path.dirname(os.path.abspath(__file__))
+    dectable = getGoodDecsTableSmallMemory(M, K)
+    decfilename = basePath + "/decs/M=%d_K=%d.txt" % (M, K)
+    with open(decfilename, mode='w') as f:
+        f.write(str(dectable))
+    print("Saved to " + decfilename)
+
+
+def readDecTable(M, K):
+    basePath = os.path.dirname(os.path.abspath(__file__))
+    decfilename = basePath + "/decs/M=%d_K=%d.txt" % (M, K)
+    if os.path.exists(decfilename) == False:
+        writeDecTable(M, K)
+
+    with open(decfilename, mode='r') as f:
+        print("Read " + decfilename)
+        dectable = eval(f.read())
+    return dectable
+
+
+def getAllIndsBasedOnDecFile(M, K, Q):
+    decs = readDecTable(M, K)
+
+    if decs != None:
+        minh = 0
+        for key in decs.keys():
+            if Q <= len(decs[key]):
+                minh = key
+        if minh > 0:
+            return convertIndsDecToInds(decs[minh], M)
+    return []
+
+def getGoodIndsBasedOnDecFile(M, K, Q):
+    decallinds = getAllIndsBasedOnDecFile(M, K, Q)
+    if decallinds != None and len(decallinds) > 0:
+        return np.array(decallinds)
+    else:
+        return np.array(list(itertools.combinations(range(M), K)))
 
 #
 # Evaluation functions

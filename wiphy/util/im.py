@@ -7,13 +7,14 @@ __all__ = ['convertIndsToVector', 'convertIndsToMatrix', 'convertIndsToIndsDec',
            'getOptimizedIndexesList', 'getIndexes', 'getGoodDecsTableSmallMemory', 'writeDecTable', 'readDecTable',
            'getAllIndsBasedOnDecFile', 'getGoodIndsBasedOnDecFile', 'getProbabilityOfActivation', 'getHammingDistance',
            'getMinimumHammingDistance', 'getSumHamming', 'getSumDistanceBetweenActivatedElements', 'getInequalityL1',
-           'checkConflict', 'getIMParameters']
+           'checkConflict', 'outputCPLEXModelFile', 'runAndGetOutputFileName', 'convertCPLEXOutputToInds', 'getIMParameters']
 
 import glob
 import itertools
 import os
+import re
 import urllib.request
-
+import subprocess
 import numpy as np
 from scipy.special import binom
 
@@ -327,7 +328,7 @@ def getGoodDecsTableSmallMemory(M, K):
     MCK = len(indsvec)
     newdecs = {}
     while True:
-        print("minHT = %d" % (minHT))
+        #print("minHT = %d" % (minHT))
         newdecs[minHT] = indsdec
         # print(newdecs)
 
@@ -406,14 +407,16 @@ def readDecTable(M, K):
         writeDecTable(M, K)
 
     with open(decfilename, mode='r') as f:
-        print("Read " + decfilename)
+        #print("Read " + decfilename)
         dectable = eval(f.read())
     return dectable
 
 
 def getAllIndsBasedOnDecFile(M, K, Q):
-    decs = readDecTable(M, K)
+    if K == 1 or K >= M-1:
+        return []
 
+    decs = readDecTable(M, K)
     if decs != None:
         minh = 0
         for key in decs.keys():
@@ -497,6 +500,77 @@ def checkConflict(inds, output=False):
                 return True
     return False
 
+#
+# CPLEX
+#
+def outputCPLEXModelFile(M, K, Q):
+    allinds = getGoodIndsBasedOnDecFile(M, K, Q)
+    allindsvec = convertIndsToVector(allinds, M)
+    allindsmat = np.hstack(allindsvec).T.tolist()  # MCK \times M
+    MCK = len(allindsmat)
+
+    constraints = ["    a[1] == 1;\n"]
+    basePath = os.path.dirname(os.path.abspath(__file__))
+    fname = basePath + "/inds-raw/M=%d_K=%d_Q=%d.mod" % (M, K, Q)
+    with open(fname, mode='w') as f:
+        f.write("int M=%d; int K=%d; int Q=%d; int MCK=%d;\n" % (M, K, Q, MCK))
+        f.write("int allinds[1..MCK][1..M] = " + str(allindsmat) + ";\n\n")
+        f.write("dvar boolean a[1..MCK];\n\n")
+        #
+        f.write("execute PARAMS {\n")
+        f.write("    cplex.mipemphasis = 0;\n")
+        f.write("    cplex.tilim = 60 * 60;\n")
+        f.write("    cplex.mipdisplay = 3;\n")
+        f.write("}\n\n")
+        #
+        f.write("minimize sum(m in 1..M) (abs(sum(q in 1..MCK)(a[q] * allinds[q][m]) - (Q * K / M)));\n\n")
+        #
+        f.write("subject to{\n")
+        # add constraints
+        f.writelines(constraints)
+        f.write("    sum(q in 1..MCK)(a[q]) == Q;\n")
+        f.write("}\n\n")
+        #
+        f.write("execute{\n")
+        f.write(
+            "    var f = new IloOplOutputFile(\"M=\" + M + \"_K=\"+ K + \"_Q=\" + Q + \"_obj=\" + cplex.getObjValue() + \".txt\");\n")
+        f.write("    f.write(a);\n")
+        f.write("    f.close();\n")
+        f.write("}\n")
+
+    print("Saved to " + fname)
+    return fname
+
+def runAndGetOutputFileName(M, K, Q):
+    basePath = os.path.dirname(os.path.abspath(__file__))
+    fname = basePath + "/inds-raw/M=%d_K=%d_Q=%d.mod" % (M, K, Q)
+    subprocess.call(['oplrun', fname])
+
+    fcout = glob.glob(basePath + "/inds-raw/M=%d_K=%d_Q=%d_*.txt" % (M, K, Q))
+    if len(fcout) > 0:
+        fcout.sort()
+        return fcout[0]
+
+    return None
+
+def convertCPLEXOutputToInds(fname, M, K, Q):
+    allinds = np.array(list(itertools.combinations(range(M), K)))
+    decallinds = getAllIndsBasedOnDecFile(M, K, Q)
+    if decallinds != None and len(decallinds) > 0:
+        allinds = decallinds
+
+    with open(fname, mode='r') as f:
+        content = f.read()
+        content = re.sub(r'\s+', ' ', content)
+        content = re.sub(r'^\s+', '', content)
+        content = re.sub(r'\n', '', content)
+        content = content.replace(" ", ",")
+        # print(content)
+        inds = np.array(eval(content))
+        # print(inds)
+        # print(np.nonzero(inds)[0].tolist())
+        inds = np.take(allinds, np.nonzero(inds)[0], axis=0)
+        return inds
 
 #
 # Others

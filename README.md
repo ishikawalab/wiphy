@@ -12,11 +12,18 @@ The major advantages of this package are highlighted as follows:
 - Some methods are not well documented.  
 
 ## Installation Guide
-WiPhy can be installed as follows.
+For Anaconda users, WiPhy can be installed as follows.
 
     > conda install git # if you do not have git
-    > git clone https://github.com/ishikawalab/wiphy/
-    > conda develop ./wiphy
+    > git clone https://github.com/ishikawalab/wiphy.git
+    > conda config --set pip_interop_enabled True
+    > pip install -e ./wiphy
+    > # conda develop ./wiphy # WiPhy is originally designed for pip
+
+For pip users, WiPhy can be simply installed as follows.
+
+    > git clone https://github.com/ishikawalab/wiphy.git
+    > pip install -e ./wiphy
 
 The above installation process requires NumPy, Pandas, SciPy, SymPy, Numba, and tqdm, all of which are popular Python packages.
 The WiPhy development team welcomes other researchers' contributions and pull requests.

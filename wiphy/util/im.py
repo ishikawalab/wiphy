@@ -1,7 +1,7 @@
 # Copyright (c) WiPhy Development Team
 # This library is released under the MIT License, see LICENSE.txt
 
-__all__ = ['convertIndsToVector', 'convertIndsToMatrix', 'convertIndsToIndsDec', 'convertIndsDecToInds',
+__all__ = ['logbinom', 'log2binom', 'convertIndsToVector', 'convertIndsToMatrix', 'convertIndsToIndsDec', 'convertIndsDecToInds',
            'outputIndsToFile', 'getMaxQ', 'getDictionaryIndexesList', 'getMeslehIndexesList',
            'wen2016EquiprobableSubcarrierActivation', 'getRandomIndexesList', 'downloadOptimizedIndexesList',
            'getOptimizedIndexesList', 'getIndexes', 'getGoodDecsTableSmallMemory', 'writeDecTable', 'readDecTable',
@@ -16,12 +16,19 @@ import re
 import urllib.request
 import subprocess
 import numpy as np
-from scipy.special import binom
+from scipy.special import binom, gammaln
 
 
 #
 # Utility functions for active indices of index modulation
 #
+def logbinom(M, K):
+    return gammaln(M+1) - gammaln(M-K+1) - gammaln(K+1)
+
+def log2binom(M, K):
+    return (gammaln(M+1) - gammaln(M-K+1) - gammaln(K+1)) / np.log(2)
+
+
 def convertIndsToVector(inds, M):
     Q = len(inds)
     ret = np.tile(np.zeros((M, 1), dtype=np.int), Q)  # M \times Q

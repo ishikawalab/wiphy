@@ -4,10 +4,18 @@
 import unittest
 
 import numpy as np
+from scipy.special import binom
 import wiphy.util.im as imu
 
 
-class IMUtilTest(unittest.TestCase):
+class Test(unittest.TestCase):
+    def test_log2binom(self):
+        ret = imu.log2binom(4, 2)
+        self.assertAlmostEqual(ret, np.log2(binom(4, 2)))
+
+        ret = imu.log2binom(8, 4)
+        self.assertAlmostEqual(ret, np.log2(binom(8, 4)))
+
     def test_convertIndsToVector(self):
         ret = imu.convertIndsToVector([[0, 1], [0, 2]], M=4)
         np.testing.assert_array_almost_equal(ret, [np.array([[1], [1], [0], [0]]), np.array([[1], [0], [1], [0]])])

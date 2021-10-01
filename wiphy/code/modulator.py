@@ -22,12 +22,17 @@ def generatePSKSymbols(constellationSize=2):
         return np.array([1.], dtype=np.complex)
 
     grayIndexes = getGrayIndixes(bitWidth)
-    originalSymbols = np.exp(2.0j * np.pi * np.asarray(range(L)) / L)
+    originalSymbols = np.exp(2.0j * np.pi * np.arange(L) / L)
     # We would like to avoid quantization errors
     l4 = np.min([L, 4])
     indsAxis = (np.arange(l4) * L / l4).astype(np.int)
     originalSymbols[indsAxis] = np.rint(originalSymbols[indsAxis])
-    return np.take(originalSymbols, grayIndexes)
+
+    retSymbols = np.zeros(len(originalSymbols), dtype=np.complex)
+    for i, g in enumerate(grayIndexes):
+        retSymbols[g] = originalSymbols[i]
+
+    return retSymbols
 
 
 def generateQAMSymbols(constellationSize=4):

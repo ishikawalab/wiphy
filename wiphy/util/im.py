@@ -1,20 +1,23 @@
 # Copyright (c) WiPhy Development Team
 # This library is released under the MIT License, see LICENSE.txt
 
-__all__ = ['logbinom', 'log2binom', 'convertIndsToVector', 'convertIndsToMatrix', 'convertIndsToIndsDec', 'convertIndsDecToInds',
+__all__ = ['logbinom', 'log2binom', 'convertIndsToVector', 'convertIndsToMatrix', 'convertIndsToIndsDec',
+           'convertIndsDecToInds',
            'outputIndsToFile', 'getMaxQ', 'getDictionaryIndexesList', 'getMeslehIndexesList',
            'wen2016EquiprobableSubcarrierActivation', 'getRandomIndexesList', 'downloadOptimizedIndexesList',
            'getOptimizedIndexesList', 'getIndexes', 'getGoodDecsTableSmallMemory', 'writeDecTable', 'readDecTable',
            'getAllIndsBasedOnDecFile', 'getGoodIndsBasedOnDecFile', 'getProbabilityOfActivation', 'getHammingDistance',
            'getMinimumHammingDistance', 'getSumHamming', 'getSumDistanceBetweenActivatedElements', 'getInequalityL1',
-           'checkConflict', 'outputCPLEXModelFile', 'runAndGetOutputFileName', 'convertCPLEXOutputToInds', 'getIMParameters']
+           'checkConflict', 'outputCPLEXModelFile', 'runAndGetOutputFileName', 'convertCPLEXOutputToInds',
+           'getIMParameters']
 
 import glob
 import itertools
 import os
 import re
-import urllib.request
 import subprocess
+import urllib.request
+
 import numpy as np
 from scipy.special import binom, gammaln
 
@@ -23,10 +26,11 @@ from scipy.special import binom, gammaln
 # Utility functions for active indices of index modulation
 #
 def logbinom(M, K):
-    return gammaln(M+1) - gammaln(M-K+1) - gammaln(K+1)
+    return gammaln(M + 1) - gammaln(M - K + 1) - gammaln(K + 1)
+
 
 def log2binom(M, K):
-    return (gammaln(M+1) - gammaln(M-K+1) - gammaln(K+1)) / np.log(2)
+    return (gammaln(M + 1) - gammaln(M - K + 1) - gammaln(K + 1)) / np.log(2)
 
 
 def convertIndsToVector(inds, M):
@@ -302,6 +306,7 @@ def getIndexes(type, M, K, Q):
 
     return inds
 
+
 #
 # Construction of a submatrix of the combinatorial matrix that maximizes the minimum Hamming distance
 #
@@ -335,7 +340,7 @@ def getGoodDecsTableSmallMemory(M, K):
     MCK = len(indsvec)
     newdecs = {}
     while True:
-        #print("minHT = %d" % (minHT))
+        # print("minHT = %d" % (minHT))
         newdecs[minHT] = indsdec
         # print(newdecs)
 
@@ -414,13 +419,13 @@ def readDecTable(M, K):
         writeDecTable(M, K)
 
     with open(decfilename, mode='r') as f:
-        #print("Read " + decfilename)
+        # print("Read " + decfilename)
         dectable = eval(f.read())
     return dectable
 
 
 def getAllIndsBasedOnDecFile(M, K, Q):
-    if K == 1 or K >= M-1:
+    if K == 1 or K >= M - 1:
         return []
 
     decs = readDecTable(M, K)
@@ -433,12 +438,14 @@ def getAllIndsBasedOnDecFile(M, K, Q):
             return convertIndsDecToInds(decs[minh], M)
     return []
 
+
 def getGoodIndsBasedOnDecFile(M, K, Q):
     decallinds = getAllIndsBasedOnDecFile(M, K, Q)
     if decallinds != None and len(decallinds) > 0:
         return np.array(decallinds)
     else:
         return np.array(list(itertools.combinations(range(M), K)))
+
 
 #
 # Evaluation functions
@@ -507,6 +514,7 @@ def checkConflict(inds, output=False):
                 return True
     return False
 
+
 #
 # CPLEX
 #
@@ -548,6 +556,7 @@ def outputCPLEXModelFile(M, K, Q):
     print("Saved to " + fname)
     return fname
 
+
 def runAndGetOutputFileName(M, K, Q):
     basePath = os.path.dirname(os.path.abspath(__file__))
     fname = basePath + "/inds-raw/M=%d_K=%d_Q=%d.mod" % (M, K, Q)
@@ -559,6 +568,7 @@ def runAndGetOutputFileName(M, K, Q):
         return fcout[0]
 
     return None
+
 
 def convertCPLEXOutputToInds(fname, M, K, Q):
     allinds = np.array(list(itertools.combinations(range(M), K)))
@@ -578,6 +588,7 @@ def convertCPLEXOutputToInds(fname, M, K, Q):
         # print(np.nonzero(inds)[0].tolist())
         inds = np.take(allinds, np.nonzero(inds)[0], axis=0)
         return inds
+
 
 #
 # Others

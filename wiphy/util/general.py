@@ -12,7 +12,7 @@ import re
 
 import numpy as np
 import pandas as pd
-from numba import njit
+from numba import njit, int8
 from scipy.constants import speed_of_light
 
 
@@ -115,12 +115,12 @@ def randn_c(*size):
 def countErrorBits(x, y):
     # return np.binary_repr(x ^ y).count('1') # not supported by numba
     ret = 0
-    z = (x ^ y) * 2
+    z = x ^ y
 
     while z >= 1:
-        z //= 2
         if z % 2 == 1:
             ret += 1
+        z //= 2
 
     return ret
 
@@ -157,7 +157,10 @@ def getRandomHermitianMatrix(M):
 
 @njit
 def convertIntToBinArray(i, B):
-    return np.array(list(np.binary_repr(i).zfill(B))).astype(np.int)
+    #return np.array(list(np.binary_repr(i).zfill(B))).astype(np.int) # does not compatible with numba
+    ret = np.zeros(B, dtype=int8) # numba trick, numba.int8
+    ret = ((i & (1 << np.arange(B)))) > 0
+    return ret[::-1] # reverse
 
 
 @njit

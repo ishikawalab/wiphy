@@ -102,6 +102,7 @@ def generateOSTBCodes(M, modtype, L, nsymbols=1):
                     codes[i, 3, 3] = -s[0]
                     codes[i] /= np.sqrt(nsymbols)
                 elif nsymbols == 4:
+                    # non-orthogonal
                     codes[i, 0, 0] = s[0]
                     codes[i, 0, 1] = -np.conj(s[1])
                     codes[i, 1, 0] = s[1]

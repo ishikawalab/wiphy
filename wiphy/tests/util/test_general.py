@@ -112,6 +112,12 @@ class Test(unittest.TestCase):
         H = me.getRandomHermitianMatrix(16)
         np.testing.assert_almost_equal(H, H.conj().T)
 
+    def test_convertIntToBinArray(self):
+        np.testing.assert_almost_equal(me.convertIntToBinArray(0, 1), [0])
+        np.testing.assert_almost_equal(me.convertIntToBinArray(2, 2), [1, 0])
+        np.testing.assert_almost_equal(me.convertIntToBinArray(3, 2), [1, 1])
+        np.testing.assert_almost_equal(me.convertIntToBinArray(4, 3), [1, 0, 0])
+
     def test_CayleyTransform(self):
         U = me.CayleyTransform(me.asnumpy(me.getRandomHermitianMatrix(4)))
         np.testing.assert_almost_equal(me.asnumpy(U.dot(U.conj().T)), np.eye(4, dtype=np.complex))

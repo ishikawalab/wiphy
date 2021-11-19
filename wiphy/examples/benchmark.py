@@ -32,7 +32,7 @@ def simulateBERReferenceJoblib(codes, channelfun, params):
     # print(BERs)
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 1:
         pBLAST = argToDic("AMIP_sim=coh_channel=rayleigh_code=blast_M=4_T=1_L=2_mod=PSK_N=4_ITo=1e2_ITi=1e3_from=-10.00_to=30.00_len=21")
         cBLAST = asarray(generateCodes(pBLAST))
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         timesr9 = [50.15030531, 39.24208482, 41.44064043,  6.43697599]
         timesm1 = [22.41968313, 19.87039665, 49.28366062, 10.89323277]
 
-        labels = ["AMI\n(single/tensor)", "BER\n(single/tensor)", "BER\n(single/ref.)", "BER\n(multi/ref.)"]
+        labels = ["BLAST AMI\n(single/tensor)", "BLST BER\n(single/tensor)", "DOSTBC BER\n(single/ref.)", "DOSTBC BER\n(multi/ref.)"]
         left = arange(len(labels))
         width = 0.3
 

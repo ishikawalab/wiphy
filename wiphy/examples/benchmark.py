@@ -5,13 +5,15 @@ import sys
 from timeit import timeit
 import joblib
 from numpy import *
+from tqdm import trange
+import matplotlib.pyplot as plt
+
 from wiphy.channel.ideal import generateRayleighChannel
 from wiphy.code import generateCodes
 from wiphy.util.general import argToDic, saveCSV
 from MIMO_AMI_coherent_MLD_parallel import simulateAMIParallel
 from MIMO_BER_coherent_MLD_parallel import simulateBERParallel
 from MIMO_BER_differential_MLD_reference import simulateBERReference
-from tqdm import trange
 
 
 def simulateBERReferenceJoblib(codes, channelfun, params):
@@ -30,7 +32,7 @@ def simulateBERReferenceJoblib(codes, channelfun, params):
     # print(BERs)
 
 if __name__ == '__main__':
-    if len(sys.argv) == 1:
+    if len(sys.argv) == 2:
         pBLAST = argToDic("AMIP_sim=coh_channel=rayleigh_code=blast_M=4_T=1_L=2_mod=PSK_N=4_ITo=1e2_ITi=1e3_from=-10.00_to=30.00_len=21")
         cBLAST = asarray(generateCodes(pBLAST))
 
@@ -51,17 +53,14 @@ if __name__ == '__main__':
         print(meanTimes)
 
     else:
-        import matplotlib.pyplot as plt
-        import numpy as np
-
         timesi9 = [54.81692204, 45.23677923, 51.60407887,  7.59387721]
         timesr9 = [50.15030531, 39.24208482, 41.44064043,  6.43697599]
         timesm1 = [22.41968313, 19.87039665, 49.28366062, 10.89323277]
 
-        left = np.arange(len(timesi9))  # numpyで横軸を設定
         labels = ["AMI\n(single/tensor)", "BER\n(single/tensor)", "BER\n(single/ref.)", "BER\n(multi/ref.)"]
-
+        left = arange(len(labels))
         width = 0.3
+
         plt.ylabel("Mean effective time [s]")
         plt.ylim(0, 60)
 

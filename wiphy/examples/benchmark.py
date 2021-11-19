@@ -30,7 +30,7 @@ def simulateBERReferenceJoblib(codes, channelfun, params):
     # print(BERs)
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
+    if len(sys.argv) == 1:
         pBLAST = argToDic("AMIP_sim=coh_channel=rayleigh_code=blast_M=4_T=1_L=2_mod=PSK_N=4_ITo=1e2_ITi=1e3_from=-10.00_to=30.00_len=21")
         cBLAST = asarray(generateCodes(pBLAST))
 
@@ -49,30 +49,29 @@ if __name__ == '__main__':
                 meanTimes[i] += timeit(strFuncs[i], globals=locals(), number=1)
         meanTimes /= 10.0
         print(meanTimes)
-        sys.exit()
 
+    else:
+        import matplotlib.pyplot as plt
+        import numpy as np
 
-    import matplotlib.pyplot as plt
-    import numpy as np
+        timesi9 = [54.81692204, 45.23677923, 51.60407887,  7.59387721]
+        timesr9 = [50.15030531, 39.24208482, 41.44064043,  6.43697599]
+        timesm1 = [22.41968313, 19.87039665, 49.28366062, 10.89323277]
 
-    timesi9 = [54.81692204, 45.23677923, 51.60407887,  7.59387721]
-    timesr9 = [50.15030531, 39.24208482, 41.44064043,  6.43697599]
-    timesm1 = [22.41968313, 19.87039665, 49.28366062, 10.89323277]
+        left = np.arange(len(timesi9))  # numpyで横軸を設定
+        labels = ["AMI\n(single/tensor)", "BER\n(single/tensor)", "BER\n(single/ref.)", "BER\n(multi/ref.)"]
 
-    left = np.arange(len(timesi9))  # numpyで横軸を設定
-    labels = ["AMI\n(single/tensor)", "BER\n(single/tensor)", "BER\n(single/ref.)", "BER\n(multi/ref.)"]
+        width = 0.3
+        plt.ylabel("Mean effective time [s]")
+        plt.ylim(0, 60)
 
-    width = 0.3
-    plt.ylabel("Mean effective time [s]")
-    plt.ylim(0, 60)
+        plt.bar(left + 0 * width, timesi9, color='skyblue', edgecolor="black", hatch='/', width=width, align='center', label="Intel Core i9-10900K, 64GB memory")
+        plt.bar(left + 1 * width, timesr9, color='tomato', edgecolor="black", hatch='\\', width=width, align='center', label="AMD Ryzen 9 5900HX, 32GB memory")
+        plt.bar(left + 2 * width, timesm1, color='lightgreen', edgecolor="black", hatch='x', width=width, align='center', label="Apple M1, 8GB memory")
 
-    plt.bar(left + 0 * width, timesi9, color='skyblue', edgecolor="black", hatch='/', width=width, align='center', label="Intel Core i9-10900K, 64GB memory")
-    plt.bar(left + 1 * width, timesr9, color='tomato', edgecolor="black", hatch='\\', width=width, align='center', label="AMD Ryzen 9 5900HX, 32GB memory")
-    plt.bar(left + 2 * width, timesm1, color='lightgreen', edgecolor="black", hatch='x', width=width, align='center', label="Apple M1, 8GB memory")
-
-    plt.xticks(left + width, labels)
-    plt.legend(loc='best')#, shadow=True)
-    plt.show()
+        plt.xticks(left + width, labels)
+        plt.legend(loc='best')#, shadow=True)
+        plt.show()
 
 
 

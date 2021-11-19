@@ -28,7 +28,7 @@ def simulateBERReference(codes, channelfun, params, printValue=True):
     xor2ebits = getXORtoErrorBitsArray(Nc)
 
     bers = zeros(params["len"])
-    for i in trange(params["len"]):
+    for i in trange(params["len"], disable = not printValue):
         errorBits = 0
         v0 = randn_c(N, M) * sqrt(sigmav2s[i])  # N \times M
         s0 = eye(M, dtype=complex)

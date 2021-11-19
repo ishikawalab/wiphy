@@ -37,7 +37,7 @@ def simulateBERParallel(codes, channelfun, params, printValue=True):
     diffxy = x - y  # M \times T * Nc^2
 
     bers = zeros(len(snr_dBs))
-    for ito in trange(ITo):
+    for ito in trange(ITo, disable = not printValue):
         bigh = channelfun(N, M, ITi)  # ITi * N \times M
         bigv = tile(randn_c(ITi * N, T), Nc * Nc)  # ITi * N \times T * Nc^2
 

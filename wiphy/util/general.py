@@ -11,14 +11,14 @@ import os
 import re
 
 import numpy as np
-import pandas as pd
 from numba import njit, int8
+import pandas as pd
 from scipy.constants import speed_of_light
 
 
 @njit
 def getGrayIndixes(bitWidth):
-    return [i ^ (i >> 1) for i in range(2 ** bitWidth)]
+    return [i ^ (i >> 1) for i in range(2 ** int(bitWidth))]
 
 
 @njit

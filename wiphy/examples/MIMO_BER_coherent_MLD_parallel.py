@@ -65,13 +65,14 @@ if __name__ == '__main__':
     else:
         args = [
             "BERP_sim=coh_channel=rayleigh_code=blast_M=4_T=1_L=2_mod=PSK_N=4_ITo=1e2_ITi=1e2_from=0.00_to=20.00_len=11",
-            "BERP_sim=coh_channel=rayleigh_code=index_dm=dic_M=4_T=1_K=1_Q=4_L=4_mod=PSK_N=4_ITo=1e2_ITi=1e2_from=0.00_to=20.00_len=11"
+            "BERP_sim=coh_channel=rayleigh_code=index_dm=dic_M=4_T=1_K=1_Q=4_L=4_mod=PSK_N=4_ITo=1e2_ITi=1e2_from=0.00_to=20.00_len=11",
+            "BERP_sim=coh_channel=rayleigh_code=adsm_M=4_T=4_O=2_L=4_mod=PSK_N=4_ITo=1e1_ITi=1e3_from=0.00_to=10.00_len=11"
         ]
 
     for arg in args:
         print("Simulating arg = " + arg)
         params = argToDic(arg)
         codes = asarray(generateCodes(params))
-        ret = simulateBERParallel(codes, generateRayleighChannel, params, printValue=False)
+        ret = simulateBERParallel(codes, generateRayleighChannel, params)
         saveCSV(arg, ret)
         print(ret)

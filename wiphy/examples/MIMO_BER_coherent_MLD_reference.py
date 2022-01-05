@@ -55,13 +55,15 @@ if __name__ == '__main__':
     else:
         args = [
             "BER_sim=coh_channel=rayleigh_code=blast_M=4_T=1_L=2_mod=PSK_N=4_IT=1e4_from=0.00_to=20.00_len=11",
-            "BER_sim=coh_channel=rayleigh_code=index_dm=dic_M=4_T=1_K=1_Q=4_L=4_mod=PSK_N=4_IT=1e4_from=0.00_to=20.00_len=11"
+            "BER_sim=coh_channel=rayleigh_code=index_dm=dic_M=4_T=1_K=1_Q=4_L=4_mod=PSK_N=4_IT=1e4_from=0.00_to=20.00_len=11",
+            "BER_sim=coh_channel=rayleigh_code=adsm_M=4_T=4_O=2_L=4_mod=PSK_N=4_IT=1e6_from=0.00_to=10.00_len=11"
         ]
 
     for arg in args:
         print("Simulating arg = " + arg)
         params = argToDic(arg)
         codes = generateCodes(params)
+        print(around(codes, decimals=3))
         ret = simulateBERReference(codes, generateRayleighChannel, params, printValue=False)
         saveCSV(arg, ret)
         print(ret)

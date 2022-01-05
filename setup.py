@@ -18,7 +18,7 @@ setup(name='wiphy',
       license='MIT',
       packages=['wiphy'],
       install_requires=[
-          'numpy', 'pandas', 'scipy', 'sympy', 'numba', 'tqdm'
+          'numpy', 'pandas', 'scipy', 'sympy', 'tqdm'
       ],
       classifiers=[
           'License :: OSI Approved :: MIT License',

@@ -41,10 +41,11 @@ def generateCodes(params):
     elif scode == "duc":
         return duc.generateDUCCodes(params["M"], params["L"])
     elif scode == "adsm":
-        if "u1" in params:
-            return adsm.generateADSMCodes(params["M"], params["mod"], params["L"], params["u1"])
+        if "O" in params:
+            return adsm.generateADSMDRCodes(params["M"], params["mod"], params["L"], params["O"])
         else:
             return adsm.generateADSMCodes(params["M"], params["mod"], params["L"])
+
     elif scode == "tast":
         return tast.generateTASTCodes(params["M"], params["Q"], params["L"], params["mod"])
     elif scode == "anm":

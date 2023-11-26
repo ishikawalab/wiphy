@@ -9,7 +9,7 @@ from .modulator import generateAPSKSymbols
 
 
 def _generateADSMCompanionMatrix(M, u_phase):
-    A = np.zeros((M, M), dtype=np.complex)
+    A = np.zeros((M, M), dtype=complex)
     A[0, M - 1] = np.exp(1j * u_phase)
     for m in range(M - 1):
         A[(m + 1) % M, m] = 1
@@ -34,7 +34,7 @@ def generateADSMCodes(M, modtype, L):
 
     A = _generateADSMCompanionMatrix(M, 2.0 * np.pi / L)
 
-    As = np.zeros((M, M, M), dtype=np.complex)  # M \times M \times M
+    As = np.zeros((M, M, M), dtype=complex)  # M \times M \times M
     for m in range(M):
         As[m] = np.linalg.matrix_power(A, m)
 
@@ -66,13 +66,13 @@ def generateADSMDRCodes(M, modtype, L, O):
         return Cinner
 
     N = _generateADSMCompanionMatrix(O, 2.0 * np.pi / L)
-    Nd = np.kron(N, np.eye(G, dtype=np.complex))
+    Nd = np.kron(N, np.eye(G, dtype=complex))
 
-    codes = np.zeros((Nc, M, M), dtype=np.complex)
+    codes = np.zeros((Nc, M, M), dtype=complex)
     for i in range(Nc):
         bits = np.binary_repr(i, width=B)
 
-        D = np.zeros((M, M), dtype=np.complex)
+        D = np.zeros((M, M), dtype=complex)
         for o in range(O):
             iin = int(bits[(o * Binner): (o * Binner + Binner)], 2)
             D[(o * G):(o * G + G), (o * G):(o * G + G)] = Cinner[iin]

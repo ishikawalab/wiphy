@@ -32,7 +32,7 @@ def generateTASTCodes(M, Q, L, modtype="SQAM"):
         La = 1
         Lp = L
 
-    G = np.zeros((M, M), dtype=np.complex)
+    G = np.zeros((M, M), dtype=complex)
     G[0, M - 1] = 1
     for m in range(M - 1):
         G[m + 1, m] = 1
@@ -40,7 +40,7 @@ def generateTASTCodes(M, Q, L, modtype="SQAM"):
     msymbols = np.exp(1j * 2.0 * np.pi * np.arange(M) / (Lp * np.max([M, Q])))
     u = _getDiversityMaximizingFactors(M, Q, La, Lp)
 
-    codes = np.zeros((M * L * Q, M, M), dtype=np.complex)
+    codes = np.zeros((M * L * Q, M, M), dtype=complex)
     for l in range(L):
         for m in range(M):
             for q in range(Q):

@@ -35,7 +35,7 @@ def log2binom(M, K):
 
 def convertIndsToVector(inds, M):
     Q = len(inds)
-    ret = np.tile(np.zeros((M, 1), dtype=np.int), Q)  # M \times Q
+    ret = np.tile(np.zeros((M, 1), dtype=int), Q)  # M \times Q
     for q in range(Q):
         for i in inds[q]:
             ret[i][q] = 1
@@ -138,7 +138,7 @@ def getMeslehIndexesList(M, K, Q):
 # IEEE Commun. Lett., vol. 20, no. 12, pp. 2386--2389, 2016.
 def wen2016EquiprobableSubcarrierActivation(M, K):
     # initialize an indexes set ds
-    ds = [np.ones(K, dtype=np.int)]
+    ds = [np.ones(K, dtype=int)]
     ds[0][K - 1] = M - K + 1
 
     if K >= 2:
@@ -255,7 +255,7 @@ def getOptimizedIndexesList(M, K, Q, minh=0):
 
     files.sort()
     print("Read " + files[0])
-    inds = np.loadtxt(files[0], dtype=np.int)
+    inds = np.loadtxt(files[0], dtype=int)
     # print(inds)
     inds = inds.reshape(Q, K).tolist()
     return inds
@@ -313,7 +313,7 @@ def getIndexes(type, M, K, Q):
 def getGoodDecsTableSmallMemory(M, K):
     minHT = 4
     indsiter = itertools.combinations(range(M), K)
-    firstivec = np.zeros(M, dtype=np.int)
+    firstivec = np.zeros(M, dtype=int)
     firstind = np.array(next(indsiter))
     firstivec[firstind] = 1
     # print(firstivec)
@@ -323,7 +323,7 @@ def getGoodDecsTableSmallMemory(M, K):
     indsvec = [firstivec]
     indsdec = [firstdec]
     for ind in indsiter:
-        ivec = np.zeros(M, dtype=np.int)
+        ivec = np.zeros(M, dtype=int)
         npind = np.array(ind)
         ivec[npind] = 1
         hd = getHammingDistance(firstivec, ivec)

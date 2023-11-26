@@ -66,11 +66,11 @@ class Test(unittest.TestCase):
 
     def test_getDFTMatrix(self):
         W = me.getDFTMatrix(4)
-        np.testing.assert_almost_equal(W.dot(W.conj().T), np.eye(4, dtype=np.complex), decimal=3)
+        np.testing.assert_almost_equal(W.dot(W.conj().T), np.eye(4, dtype=complex), decimal=3)
         W = me.getDFTMatrix(8)
-        np.testing.assert_almost_equal(W.dot(W.conj().T), np.eye(8, dtype=np.complex), decimal=3)
+        np.testing.assert_almost_equal(W.dot(W.conj().T), np.eye(8, dtype=complex), decimal=3)
         W = me.getDFTMatrix(16)
-        np.testing.assert_almost_equal(W.dot(W.conj().T), np.eye(16, dtype=np.complex), decimal=3)
+        np.testing.assert_almost_equal(W.dot(W.conj().T), np.eye(16, dtype=complex), decimal=3)
 
     def test_inv_dB(self):
         self.assertAlmostEqual(me.inv_dB(0.0), 1.0, msg="The implementation of inv_dB may be wrong.")
@@ -120,11 +120,11 @@ class Test(unittest.TestCase):
 
     def test_CayleyTransform(self):
         U = me.CayleyTransform(me.asnumpy(me.getRandomHermitianMatrix(4)))
-        np.testing.assert_almost_equal(me.asnumpy(U.dot(U.conj().T)), np.eye(4, dtype=np.complex))
+        np.testing.assert_almost_equal(me.asnumpy(U.dot(U.conj().T)), np.eye(4, dtype=complex))
         U = me.CayleyTransform(me.asnumpy(me.getRandomHermitianMatrix(8)))
-        np.testing.assert_almost_equal(me.asnumpy(U.dot(U.conj().T)), np.eye(8, dtype=np.complex))
+        np.testing.assert_almost_equal(me.asnumpy(U.dot(U.conj().T)), np.eye(8, dtype=complex))
         U = me.CayleyTransform(me.asnumpy(me.getRandomHermitianMatrix(16)))
-        np.testing.assert_almost_equal(me.asnumpy(U.dot(U.conj().T)), np.eye(16, dtype=np.complex))
+        np.testing.assert_almost_equal(me.asnumpy(U.dot(U.conj().T)), np.eye(16, dtype=complex))
 
     def test_kurtosis(self):
         self.assertAlmostEqual(me.kurtosis(me.randn(10000000)), 0.0, places=2)

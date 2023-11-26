@@ -137,7 +137,7 @@ def getXORtoErrorBitsArray(Nc):
 
 @njit
 def getErrorBitsTable(Nc):
-    errorTable = np.zeros((Nc, Nc), dtype=np.int8)
+    errorTable = np.zeros((Nc, Nc), dtype=int8)
     for y in range(Nc):
         for x in range(y, Nc):
             errorTable[y][x] = errorTable[x][y] = countErrorBits(x, y)
@@ -157,7 +157,7 @@ def getRandomHermitianMatrix(M):
 
 @njit
 def convertIntToBinArray(i, B):
-    #return np.array(list(np.binary_repr(i).zfill(B))).astype(np.int) # does not compatible with numba
+    #return np.array(list(np.binary_repr(i).zfill(B))).astype(int) # does not compatible with numba
     ret = np.zeros(B, dtype=int8) # numba trick, numba.int8
     ret = ((i & (1 << np.arange(B)))) > 0
     return ret[::-1] # reverse

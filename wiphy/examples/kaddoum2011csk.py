@@ -128,7 +128,7 @@ if __name__ == '__main__':
             print(codes)
             Nc = codes.shape[0]
 
-            symbols = np.zeros((MT * params["IT"]), dtype=np.complex)
+            symbols = np.zeros((MT * params["IT"]), dtype=complex)
             for it in range(params["IT"]):
                 codei = np.random.randint(0, Nc)
                 px = np.diag(xs[(M * it): (M * (it + 1))])

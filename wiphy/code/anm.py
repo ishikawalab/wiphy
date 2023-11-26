@@ -10,7 +10,7 @@ from .modulator import generateAPSKSymbols
 
 def generateANMCodes(M, modtype, L):
     symbols = generateAPSKSymbols(modtype, L)
-    codes = np.zeros((M * L, M, 1), dtype=np.complex)
+    codes = np.zeros((M * L, M, 1), dtype=complex)
 
     for m in range(M):
         for l in range(L):

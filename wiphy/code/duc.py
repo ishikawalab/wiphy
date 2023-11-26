@@ -16,7 +16,7 @@ def generateDUCCodes(M, L, initu=None):
         M (int): the number of transmit antennas.
         L (int): the constellation size.
     """
-    codes = np.zeros((L, M, M), dtype=np.complex)
+    codes = np.zeros((L, M, M), dtype=complex)
 
     if 'None' in str(type(initu)):
         u = _getDiversityMaximizingFactors(M, L)

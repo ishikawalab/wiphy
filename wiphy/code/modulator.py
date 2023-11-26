@@ -16,19 +16,19 @@ def generatePSKSymbols(constellationSize=2):
 
     if bitWidth != np.floor(bitWidth):
         print("The specified constellationSize is not a power of two")
-        return np.array([], dtype=np.complex)
+        return np.array([], dtype=complex)
 
     if L == 1:
-        return np.array([1.], dtype=np.complex)
+        return np.array([1.], dtype=complex)
 
     grayIndexes = getGrayIndixes(bitWidth)
     originalSymbols = np.exp(2.0j * np.pi * np.arange(L) / L)
     # We would like to avoid quantization errors
     l4 = np.min([L, 4])
-    indsAxis = (np.arange(l4) * L / l4).astype(np.int)
+    indsAxis = (np.arange(l4) * L / l4).astype(int)
     originalSymbols[indsAxis] = np.rint(originalSymbols[indsAxis])
 
-    retSymbols = np.zeros(len(originalSymbols), dtype=np.complex)
+    retSymbols = np.zeros(len(originalSymbols), dtype=complex)
     for i, g in enumerate(grayIndexes):
         retSymbols[g] = originalSymbols[i]
 
@@ -42,7 +42,7 @@ def generateQAMSymbols(constellationSize=4):
 
     if sqrtL * sqrtL != L:
         print("The specified constellationSize is not an even power of two")
-        return np.array([], dtype=np.complex)
+        return np.array([], dtype=complex)
 
     sigma = np.sqrt((L - 1) * 2 / 3)
     y = np.floor(np.arange(L) / sqrtL)
@@ -51,7 +51,7 @@ def generateQAMSymbols(constellationSize=4):
 
     logsqL = np.floor(np.log2(sqrtL))
     grayIndexes = getGrayIndixes(logsqL)
-    grayIndexes = (np.take(grayIndexes, list(y)) * 2 ** logsqL + np.take(grayIndexes, list(x))).astype(np.int)
+    grayIndexes = (np.take(grayIndexes, list(y)) * 2 ** logsqL + np.take(grayIndexes, list(x))).astype(int)
 
     return np.take(originalSymbols, grayIndexes)
 
@@ -67,7 +67,7 @@ def generateStarQAMSymbols(constellationSize=2):
     Nlevels = int(2 ** np.ceil(p))
 
     sigma = np.sqrt(6.0 / (Nlevels + 1.0) / (2.0 * Nlevels + 1.0))
-    symbols = np.zeros(L, dtype=np.complex)
+    symbols = np.zeros(L, dtype=complex)
     for level_id in range(Nlevels):
         subpsk = generatePSKSymbols(subConstellationSize)
         # symbols.append((1.0 + level_id) * sigma * mod.symbols)

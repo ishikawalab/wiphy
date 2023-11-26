@@ -26,7 +26,7 @@ def generateBases(type, M, T, **kwargs):
     # initialize a unitary matrix that generates a set of bases
     if type[0].lower() == 'i':
         # Identity basis
-        U = np.eye(M, dtype=np.complex)
+        U = np.eye(M, dtype=complex)
     elif type[0].lower() == 'd':
         # DFT basis
         U = getDFTMatrix(M)
@@ -56,13 +56,13 @@ def convertUnitaryToBases(U, T):
 def constructUnitaryFromE1(E1):
     M = E1.shape[0]
     T = E1.shape[1]
-    U = np.zeros((M, M), dtype=np.complex)
+    U = np.zeros((M, M), dtype=complex)
     U[:, 0: T] = E1
 
     W = getDFTMatrix(M)
     for k in range(1, int(M / T)):
         v = W[:, (k * T): ((k + 1) * T)]
-        msum = np.eye(M, dtype=np.complex)
+        msum = np.eye(M, dtype=complex)
         for i in range(k):
             E = U[:, (i * T): ((i + 1) * T)]
             msum -= np.matmul(E, E.T.conj())
@@ -82,7 +82,7 @@ def getGSPE1(params):
 
         if params.M == 4 and params.L == 16:
             # print("Basis.py: E1 designed for DUC, M=4, L=16, MED = 1.9999999999999978")
-            # return np.array([[0.5],[0.5],[0.5],[0.5]], dtype=np.complex)
+            # return np.array([[0.5],[0.5],[0.5],[0.5]], dtype=complex)
             # print("Basis.py: E1 designed for DUC, M=4, L=16, Powell MED = 1.9999999918507845")
             # return np.array([[-0.1552578934 - 0.4752841151j],
             #      [0.4308312897 - 0.2537408069j],

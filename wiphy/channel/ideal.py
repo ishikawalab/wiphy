@@ -95,7 +95,7 @@ def generateRicianLoSChannel(tx, ty, tz, rx, ry, rz, wavelength, IT=1):
     M = len(tx)  # the number of transmit antenna elements
     N = len(rx)  # the number of receive antenna elements
 
-    r = np.zeros((N, M), dtype=np.complex)
+    r = np.zeros((N, M), dtype=complex)
     for n in range(N):
         for m in range(M):
             r[n][m] = np.sqrt(np.square(rx[n] - tx[m]) + np.square(ry[n] - ty[m]) + np.square(rz[n] - tz[m]))

@@ -1,7 +1,7 @@
 # Copyright (c) WiPhy Development Team
 # This library is released under the MIT License, see LICENSE.txt
 
-__all__ = ['getGrayIndixes', 'frodiff', 'normsYHCodes', 'getEuclideanDistances', 'getMinimumEuclideanDistance', 'getDFTMatrix',
+__all__ = ['getGrayIndixes', 'frodiff', 'normsYHCodes', 'getEuclideanDistances', 'getMinimumRank', 'getMinimumEuclideanDistance', 'getDFTMatrix',
            'inv_dB', 'randn', 'randn_c', 'countErrorBits', 'getXORtoErrorBitsArray',
            'getErrorBitsTable', 'getRandomHermitianMatrix', 'convertIntToBinArray', 'CayleyTransform', 'CayleyTransformInv', 'asnumpy',
            'ascupy', 'frequencyToWavelength', 'kurtosis', 'testUnitaryCodes', 'isUnitary', 'toXpArray', 'dicToNumpy',
@@ -65,6 +65,17 @@ def getEuclideanDistances(codes):
             i += 1
     return ret
 
+@njit
+def getMinimumRank(codes):
+    minRank = int(1e9)
+    for y in range(codes.shape[0]):
+        for x in range(y + 1, codes.shape[0]):
+            diff = codes[y] - codes[x]
+            curRank = np.linalg.matrix_rank(diff.dot(np.conj(diff.T)))
+
+            if curRank < minRank:
+                minRank = curRank
+    return minRank
 
 @njit# (parallel=True) worsens performance
 def getMinimumEuclideanDistance(codes):

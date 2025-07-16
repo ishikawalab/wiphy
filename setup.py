@@ -4,10 +4,9 @@
 from codecs import open
 
 from setuptools import setup
-from wiphy.__init__ import WIPHY_VERSION
 
 setup(name='wiphy',
-      version=WIPHY_VERSION,
+      version="0.9.5", # Need to match WIPHY_VERSION in __init__.py
       description='The fundamental Python package for wireless signal processing at the physical layer',
       long_description=open('README.md').read(),
       long_description_content_type='text/markdown',
